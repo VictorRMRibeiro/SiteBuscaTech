@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#071d30">
   <meta property="og:type" content="website"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="BuscaTech — Atendimento em casa ou com retirada no DF"><meta property="og:description" content="Manutenção de computadores em residência ou na oficina, com retirada e devolução agendadas no DF.">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261117-2">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261117-3">
 </head>
 <body>
 <a class="skip" href="#principal">Ir para o conteúdo</a>
@@ -137,6 +137,25 @@
 <section class="contact section" id="contato"><div class="container contact-grid"><div><p class="eyebrow">VAMOS CUIDAR DO SEU COMPUTADOR?</p><h2>O primeiro passo<br>é uma conversa.</h2><p>Atendemos Taguatinga, Vicente Pires, Águas Claras, Ceilândia e Guará, em casa ou com retirada para a oficina. Consulte cobertura e taxa para seu endereço.</p><a class="button" href="https://wa.me/5561991533486?text=Ol%C3%A1%2C%20BuscaTech!%20Gostaria%20de%20um%20or%C3%A7amento." target="_blank" rel="noopener">Pedir orçamento no WhatsApp <span aria-hidden="true">↗</span></a></div><div class="contact-details"><a href="tel:+5561991533486"><span>TELEFONE</span><strong>(61) 99153-3486</strong><b aria-hidden="true">↗</b></a><a href="mailto:buscatech.df@gmail.com"><span>E-MAIL</span><strong>buscatech.df@gmail.com</strong><b aria-hidden="true">↗</b></a><a href="https://www.instagram.com/buscatech.df/" target="_blank" rel="noopener noreferrer"><span>INSTAGRAM</span><strong>@buscatech.df</strong><b aria-hidden="true">↗</b></a><div><span>NOSSA BASE</span><strong>Taguatinga, Distrito Federal</strong><p>Atendimento em casa ou retirada para a oficina nos bairros atendidos.<br>Consulte disponibilidade e taxa pelo WhatsApp.</p></div></div></div></section>
 </main>
 <footer><div class="container footer-inner"><a class="brand" href="#inicio">Busca<span>Tech</span><small>DF</small></a><p>Atendimento em casa ou com retirada e devolução no DF.</p><a href="#inicio">Voltar ao início ↑</a></div></footer>
+<div class="help-chat" id="help-chat">
+  <section class="help-chat-panel" id="help-chat-panel" role="dialog" aria-modal="false" aria-labelledby="help-chat-title" hidden>
+    <header class="help-chat-top">
+      <div class="help-chat-brand"><span class="help-chat-avatar" aria-hidden="true">BT</span><div><strong id="help-chat-title">Ajuda BuscaTech</strong><span><i class="help-chat-status-dot" aria-hidden="true"></i> Assistente virtual</span></div></div>
+      <button class="help-chat-close" id="help-chat-close" type="button" aria-label="Fechar conversa">×</button>
+    </header>
+    <div class="help-chat-log" id="help-chat-log" role="log" aria-live="polite" aria-relevant="additions text"></div>
+    <p class="help-chat-privacy">Não envie senhas ou códigos. Suas respostas não ficam salvas no site; ao final, você escolhe se quer abrir o WhatsApp com o resumo.</p>
+    <form class="help-chat-form" id="help-chat-form">
+      <label class="visually-hidden" for="help-chat-input">Sua resposta</label>
+      <input id="help-chat-input" name="resposta" type="text" maxlength="300" autocomplete="off" placeholder="Digite sua resposta">
+      <button type="submit" aria-label="Enviar resposta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 15-7-4 14-3-5-8-2Zm8 2 7-9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </form>
+  </section>
+  <button class="help-chat-launcher" id="help-chat-launcher" type="button" aria-controls="help-chat-panel" aria-expanded="false" aria-label="Abrir conversa de ajuda da BuscaTech" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l1.7-3.2A7.5 7.5 0 1 1 20 11.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <span><strong>Precisa de ajuda?</strong><small>Converse com a BuscaTech</small></span>
+  </button>
+</div>
 <script>
 (() => {
   const optionRoot = document.getElementById('finder-options');
@@ -290,6 +309,209 @@
       element.addEventListener('pointerleave', () => { element.style.transform = ''; });
     });
   }
+})();
+</script>
+<script>
+(() => {
+  const launcher = document.getElementById('help-chat-launcher');
+  const panel = document.getElementById('help-chat-panel');
+  const closeButton = document.getElementById('help-chat-close');
+  const log = document.getElementById('help-chat-log');
+  const form = document.getElementById('help-chat-form');
+  const input = document.getElementById('help-chat-input');
+  if (!launcher || !panel || !closeButton || !log || !form || !input) return;
+
+  const customer = {};
+  let started = false;
+  let question = '';
+  launcher.hidden = false;
+
+  function scrollChat() {
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function say(message, speaker = 'bot') {
+    const bubble = document.createElement('p');
+    bubble.className = `help-chat-message ${speaker}`;
+    bubble.textContent = message;
+    log.append(bubble);
+    scrollChat();
+  }
+
+  function askText(message, key, placeholder) {
+    say(message);
+    question = key;
+    form.hidden = false;
+    input.disabled = false;
+    input.placeholder = placeholder;
+    input.value = '';
+    input.focus();
+  }
+
+  function askChoice(message, options, onChoose) {
+    say(message);
+    question = '';
+    form.hidden = true;
+    const group = document.createElement('div');
+    group.className = 'help-chat-choices';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', 'Escolha uma opção');
+    options.forEach(option => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = option.label;
+      button.addEventListener('click', () => {
+        group.remove();
+        say(option.label, 'user');
+        onChoose(option.value);
+      }, { once: true });
+      group.append(button);
+    });
+    log.append(group);
+    scrollChat();
+    group.querySelector('button')?.focus();
+  }
+
+  function symptomGuidance(symptom) {
+    const text = symptom.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (/esquent|temper|ventoin|barulho|ruido/.test(text)) return 'Calor e ruído podem estar relacionados à ventilação, mas também podem ter outras causas. Uma avaliação ajuda a indicar o serviço correto.';
+    if (/virus|anuncio|propaganda|pop.?up|malware/.test(text)) return 'Anúncios inesperados ou alertas podem ter várias causas. Evite informar senhas; a equipe pode verificar o sistema com segurança.';
+    if (/lent|trav|demor|congel|reinici|deslig/.test(text)) return 'Lentidão e travamentos podem vir do sistema, armazenamento ou de componentes. O diagnóstico é o melhor começo para confirmar a causa.';
+    if (/tela|imagem|liga|energia|carrega/.test(text)) return 'Falhas na tela ou na inicialização podem ter várias causas. A equipe precisa avaliar o equipamento para confirmar o problema.';
+    return 'Obrigado pelo relato. O assistente não consegue confirmar defeitos sem avaliar o equipamento; vou incluir sua descrição para a equipe orientar você.';
+  }
+
+  function continueAfterName() {
+    askChoice(`Prazer, ${customer.name}! Qual equipamento está com problema?`, [
+      { label: 'Notebook', value: 'Notebook' },
+      { label: 'Desktop', value: 'Computador desktop' },
+      { label: 'Outro ou não sei', value: 'Outro / não sei' }
+    ], value => {
+      customer.device = value;
+      askText('O que está acontecendo? Descreva os sintomas com suas palavras.', 'symptom', 'Ex.: está lento e esquenta');
+    });
+  }
+
+  function askNeighborhood() {
+    askText('Qual é o seu bairro? Assim a equipe confere a cobertura e a taxa de deslocamento.', 'neighborhood', 'Seu bairro');
+  }
+
+  function finishConversation() {
+    question = '';
+    say(`Obrigado, ${customer.name}! Preparei um resumo para a equipe. Confira e, se quiser, abra o WhatsApp para continuar.`, 'bot');
+    const summary = document.createElement('div');
+    summary.className = 'help-chat-summary';
+    summary.textContent = [
+      `Nome: ${customer.name}`,
+      `Equipamento: ${customer.device}`,
+      `Relato: ${customer.symptom}`,
+      `Atendimento: ${customer.modality}`,
+      customer.pickupDay ? `Preferência para retirada: ${customer.pickupDay}` : '',
+      `Bairro: ${customer.neighborhood}`
+    ].filter(Boolean).join('\n');
+    log.append(summary);
+
+    const message = [
+      'Olá, BuscaTech! Vim pelo assistente do site.',
+      `Nome: ${customer.name}`,
+      `Equipamento: ${customer.device}`,
+      `Problema relatado: ${customer.symptom}`,
+      `Preferência de atendimento: ${customer.modality}`,
+      customer.pickupDay ? `Dia preferido para retirada: ${customer.pickupDay}` : '',
+      `Bairro: ${customer.neighborhood}`,
+      'Gostaria de confirmar a avaliação, a disponibilidade e os custos antes de agendar.'
+    ].filter(Boolean).join('\n');
+    const whatsapp = document.createElement('a');
+    whatsapp.className = 'help-chat-whatsapp';
+    whatsapp.href = `https://wa.me/5561991533486?text=${encodeURIComponent(message)}`;
+    whatsapp.target = '_blank';
+    whatsapp.rel = 'noopener noreferrer';
+    whatsapp.textContent = 'Continuar pelo WhatsApp ↗';
+    log.append(whatsapp);
+
+    const notice = document.createElement('p');
+    notice.className = 'help-chat-send-note';
+    notice.textContent = 'O WhatsApp abrirá com a mensagem preenchida. Ela só será enviada quando você tocar em Enviar.';
+    log.append(notice);
+
+    const restart = document.createElement('button');
+    restart.className = 'help-chat-restart';
+    restart.type = 'button';
+    restart.textContent = 'Começar outra conversa';
+    restart.addEventListener('click', resetConversation, { once: true });
+    log.append(restart);
+    form.hidden = true;
+    scrollChat();
+    whatsapp.focus();
+  }
+
+  function resetConversation() {
+    Object.keys(customer).forEach(key => delete customer[key]);
+    log.replaceChildren();
+    startConversation();
+  }
+
+  function startConversation() {
+    if (started && log.childElementCount) return;
+    started = true;
+    askText('Olá! Sou o assistente virtual da BuscaTech. Vou fazer algumas perguntas rápidas para entender o que está acontecendo e preparar um resumo. Como posso te chamar?', 'name', 'Seu nome');
+  }
+
+  launcher.addEventListener('click', () => {
+    panel.hidden = false;
+    launcher.setAttribute('aria-expanded', 'true');
+    startConversation();
+    if (question) input.focus();
+    else panel.querySelector('.help-chat-choices button, .help-chat-whatsapp, .help-chat-restart')?.focus();
+  });
+
+  function closeConversation() {
+    panel.hidden = true;
+    launcher.setAttribute('aria-expanded', 'false');
+    launcher.focus();
+  }
+
+  closeButton.addEventListener('click', closeConversation);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !panel.hidden) closeConversation();
+  });
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const answer = input.value.trim();
+    if (!answer || !question) return;
+    say(answer, 'user');
+    input.value = '';
+
+    if (question === 'name') {
+      customer.name = answer.slice(0, 80);
+      continueAfterName();
+    } else if (question === 'symptom') {
+      customer.symptom = answer.slice(0, 300);
+      say(symptomGuidance(customer.symptom));
+      askChoice('Como você prefere ser atendido?', [
+        { label: 'Atendimento na residência', value: 'Atendimento na residência' },
+        { label: 'Retirada para a oficina', value: 'Retirada para a oficina' }
+      ], value => {
+        customer.modality = value;
+        if (value === 'Retirada para a oficina') {
+          askChoice('Qual dia funciona melhor para a retirada?', [
+            { label: 'Segunda a sexta', value: 'Segunda a sexta' },
+            { label: 'Sábado', value: 'Sábado' },
+            { label: 'Ainda não sei', value: 'A combinar' }
+          ], day => {
+            customer.pickupDay = day;
+            askNeighborhood();
+          });
+        } else {
+          askNeighborhood();
+        }
+      });
+    } else if (question === 'neighborhood') {
+      customer.neighborhood = answer.slice(0, 100);
+      finishConversation();
+    }
+  });
 })();
 </script>
 </body></html>
