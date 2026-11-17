@@ -202,3 +202,9 @@ footer{border-top:1px solid #e8eeeb}
 @media(max-width:1000px){.hero-3d-scene{min-height:365px}.hero-computer-model{width:min(108%,420px)}}
 @media(max-width:700px){.hero-3d-scene{min-height:320px;aspect-ratio:1.08;border-radius:18px}.hero-chip-top{top:13px;left:13px;padding:8px 10px;font-size:8px}.hero-3d-caption{left:17px;right:17px;bottom:17px;padding-top:15px}.hero-3d-caption strong{font-size:22px}.hero-computer-model{top:45%;width:min(112%,390px)}.hero-visual .hero-float-card{top:-11px;right:0;padding:11px 12px}.hero-float-card strong{font-size:10px}.hero-float-card div>span{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.hero-computer-model{animation:none}}
+
+/* Mantém os elementos visuais em proporção confortável em telas grandes. */
+.hero-3d-scene,.care-image-wrap{width:100%;max-width:560px;justify-self:center}
+.hero-3d-scene{min-height:0;aspect-ratio:1.06}
+.care-image-wrap{min-height:0;aspect-ratio:1.25}
+@media(max-width:700px){.hero-3d-scene{max-width:430px;min-height:0;aspect-ratio:1.08}.care-image-wrap{max-width:520px;min-height:0;aspect-ratio:1.15}}
