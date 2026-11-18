@@ -144,7 +144,7 @@
       <button class="help-chat-close" id="help-chat-close" type="button" aria-label="Fechar conversa">×</button>
     </header>
     <div class="help-chat-log" id="help-chat-log" role="log" aria-live="polite" aria-relevant="additions text"></div>
-    <p class="help-chat-privacy">Não envie senhas ou códigos. Suas respostas não ficam salvas no site; ao final, você escolhe se quer abrir o WhatsApp com o resumo.</p>
+    <p class="help-chat-privacy">Não envie senhas, códigos ou dados pessoais. Se autorizar, o equipamento e os relatos vão ao Gemini, da Google (conversas grátis podem ser usadas para melhorar os serviços); nome e bairro do cadastro ficam fora. O resumo só é salvo pela BuscaTech com seu aceite.</p>
     <form class="help-chat-form" id="help-chat-form">
       <label class="visually-hidden" for="help-chat-input">Sua resposta</label>
       <input id="help-chat-input" name="resposta" type="text" maxlength="300" autocomplete="off" placeholder="Digite sua resposta">
@@ -156,6 +156,7 @@
     <span><strong>Precisa de ajuda?</strong><small>Converse com a BuscaTech</small></span>
   </button>
 </div>
+<script src="chatbot-config.js"></script>
 <script>
 (() => {
   const optionRoot = document.getElementById('finder-options');
@@ -321,7 +322,10 @@
   const input = document.getElementById('help-chat-input');
   if (!launcher || !panel || !closeButton || !log || !form || !input) return;
 
+  const chatConfig = window.BUSCATECH_CHAT_CONFIG || {};
+  const supabaseReady = Boolean(chatConfig.supabaseUrl && chatConfig.publishableKey);
   const customer = {};
+  const aiMessages = [];
   let started = false;
   let question = '';
   launcher.hidden = false;
@@ -336,6 +340,71 @@
     bubble.textContent = message;
     log.append(bubble);
     scrollChat();
+    return bubble;
+  }
+
+  async function callChatFunction(body) {
+    const response = await fetch(`${chatConfig.supabaseUrl.replace(/\/$/, '')}/functions/v1/buscatech-chat`, {
+      method: 'POST',
+      headers: {
+        apikey: chatConfig.publishableKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'O assistente está indisponível agora.');
+    return result;
+  }
+
+  function askModality() {
+    askChoice('Como você prefere ser atendido?', [
+      { label: 'Atendimento na residência', value: 'Atendimento na residência' },
+      { label: 'Retirada para a oficina', value: 'Retirada para a oficina' }
+    ], value => {
+      customer.modality = value;
+      if (value === 'Retirada para a oficina') {
+        askChoice('Qual dia funciona melhor para a retirada?', [
+          { label: 'Segunda a sexta', value: 'Segunda a sexta' },
+          { label: 'Sábado', value: 'Sábado' },
+          { label: 'Ainda não sei', value: 'A combinar' }
+        ], day => {
+          customer.pickupDay = day;
+          askNeighborhood();
+        });
+      } else {
+        askNeighborhood();
+      }
+    });
+  }
+
+  async function getAiReply() {
+    const loading = say('Vou pensar em uma orientação segura para você…');
+    form.hidden = true;
+    question = '';
+    try {
+      const result = await callChatFunction({
+        action: 'chat',
+        consent: true,
+        device: customer.device,
+        messages: aiMessages
+      });
+      loading.remove();
+      aiMessages.push({ role: 'model', content: result.reply });
+      say(result.reply);
+      askChoice('Quer perguntar ou explicar mais alguma coisa?', [
+        { label: 'Sim, continuar a conversa', value: 'continue' },
+        { label: 'Continuar com o atendimento', value: 'finish' }
+      ], value => {
+        if (value === 'continue') askText('Pode mandar sua próxima pergunta. Não inclua dados pessoais, senhas ou códigos.', 'aiMessage', 'Digite sua pergunta');
+        else askModality();
+      });
+    } catch {
+      loading.remove();
+      say('Não consegui falar com a IA agora. Vou deixar uma orientação inicial e você pode continuar com a equipe.');
+      say(symptomGuidance(customer.symptom));
+      askModality();
+    }
   }
 
   function askText(message, key, placeholder) {
@@ -396,9 +465,46 @@
     askText('Qual é o seu bairro? Assim a equipe confere a cobertura e a taxa de deslocamento.', 'neighborhood', 'Seu bairro');
   }
 
+  async function askSaveConsent() {
+    if (!supabaseReady) return finishConversation();
+    askChoice('Quer autorizar que a BuscaTech salve este resumo para a equipe retomar o atendimento? Ele inclui seu nome, equipamento, relato, modalidade e bairro. Você pode continuar sem salvar.', [
+      { label: 'Sim, salvar o resumo', value: true },
+      { label: 'Não salvar', value: false }
+    ], async consent => {
+      customer.saveConsent = consent;
+      if (consent) {
+        const saving = say('Salvando o resumo com sua autorização…');
+        try {
+          await callChatFunction({
+            action: 'save',
+            consent: true,
+            aiConsent: customer.aiConsent === true,
+            name: customer.name,
+            device: customer.device,
+            symptom: customer.symptom,
+            modality: customer.modality,
+            pickupDay: customer.pickupDay || '',
+            neighborhood: customer.neighborhood
+          });
+          customer.saved = true;
+          saving.remove();
+        } catch {
+          customer.saveFailed = true;
+          saving.textContent = 'Não consegui salvar agora. Seu resumo ainda está aqui e você pode continuar pelo WhatsApp.';
+        }
+      }
+      finishConversation();
+    });
+  }
+
   function finishConversation() {
     question = '';
-    say(`Obrigado, ${customer.name}! Preparei um resumo para a equipe. Confira e, se quiser, abra o WhatsApp para continuar.`, 'bot');
+    const saveStatus = customer.saved
+      ? ' Seu resumo também foi salvo para a equipe com sua autorização.'
+      : customer.saveFailed
+        ? ' Não consegui salvar o resumo agora; ele continua disponível nesta conversa.'
+        : '';
+    say(`Obrigado, ${customer.name}! Preparei um resumo para a equipe.${saveStatus} Confira e, se quiser, abra o WhatsApp para continuar.`, 'bot');
     const summary = document.createElement('div');
     summary.className = 'help-chat-summary';
     summary.textContent = [
@@ -407,7 +513,8 @@
       `Relato: ${customer.symptom}`,
       `Atendimento: ${customer.modality}`,
       customer.pickupDay ? `Preferência para retirada: ${customer.pickupDay}` : '',
-      `Bairro: ${customer.neighborhood}`
+      `Bairro: ${customer.neighborhood}`,
+      customer.saved ? 'Resumo salvo com autorização.' : ''
     ].filter(Boolean).join('\n');
     log.append(summary);
 
@@ -447,6 +554,7 @@
 
   function resetConversation() {
     Object.keys(customer).forEach(key => delete customer[key]);
+    aiMessages.splice(0, aiMessages.length);
     log.replaceChildren();
     startConversation();
   }
@@ -488,28 +596,31 @@
       continueAfterName();
     } else if (question === 'symptom') {
       customer.symptom = answer.slice(0, 300);
-      say(symptomGuidance(customer.symptom));
-      askChoice('Como você prefere ser atendido?', [
-        { label: 'Atendimento na residência', value: 'Atendimento na residência' },
-        { label: 'Retirada para a oficina', value: 'Retirada para a oficina' }
-      ], value => {
-        customer.modality = value;
-        if (value === 'Retirada para a oficina') {
-          askChoice('Qual dia funciona melhor para a retirada?', [
-            { label: 'Segunda a sexta', value: 'Segunda a sexta' },
-            { label: 'Sábado', value: 'Sábado' },
-            { label: 'Ainda não sei', value: 'A combinar' }
-          ], day => {
-            customer.pickupDay = day;
-            askNeighborhood();
-          });
-        } else {
-          askNeighborhood();
-        }
-      });
+      if (!supabaseReady) {
+        say(symptomGuidance(customer.symptom));
+        askModality();
+      } else {
+        askChoice('Posso enviar o tipo do equipamento e o relato do problema ao Gemini, da Google, para ele conversar com você? Os campos de nome e bairro do cadastro ficam de fora. No plano gratuito, mensagens podem ser usadas para melhorar os serviços do Google. Não inclua dados pessoais no relato.', [
+          { label: 'Sim, conversar com a IA', value: true },
+          { label: 'Prefiro seguir sem IA', value: false }
+        ], consent => {
+          customer.aiConsent = consent;
+          if (consent) {
+            aiMessages.push({ role: 'user', content: customer.symptom });
+            getAiReply();
+          } else {
+            say(symptomGuidance(customer.symptom));
+            askModality();
+          }
+        });
+      }
+    } else if (question === 'aiMessage') {
+      const followUp = answer.slice(0, 600);
+      aiMessages.push({ role: 'user', content: followUp });
+      getAiReply();
     } else if (question === 'neighborhood') {
       customer.neighborhood = answer.slice(0, 100);
-      finishConversation();
+      askSaveConsent();
     }
   });
 })();
