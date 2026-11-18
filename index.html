@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#071d30">
   <meta property="og:type" content="website"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="BuscaTech — Atendimento em casa ou com retirada no DF"><meta property="og:description" content="Manutenção de computadores em residência ou na oficina, com retirada e devolução agendadas no DF.">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261118-chatbot-3d">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261118-chatbot-3d-card">
 </head>
 <body>
 <a class="skip" href="#principal">Ir para o conteúdo</a>
@@ -474,6 +474,10 @@
     const label = document.createElement('span');
     label.className = 'help-chat-welcome-label';
     label.textContent = 'ORIENTAÇÃO INICIAL';
+    const visual = document.createElement('span');
+    visual.className = 'help-chat-3d-visual';
+    visual.setAttribute('aria-hidden', 'true');
+    visual.innerHTML = '<svg viewBox="0 0 100 84" focusable="false"><ellipse cx="51" cy="73" rx="34" ry="6" fill="#b9ddc7" opacity=".55"/><path d="M27 18 59 9l22 11-32 10z" fill="#d4f2de"/><path d="m49 30 32-10v31L49 62z" fill="#83d99f"/><path d="m27 18 22 12v32L27 50z" fill="#46b875"/><path d="m33 23 15 8v21l-15-8z" fill="#163e2b"/><path d="m36 26 10 5v16l-10-5z" fill="#a6f1ba"/><path d="m22 63 28-9 32 7-29 11z" fill="#d8f0df"/><path d="m22 63 31 9v5l-31-9z" fill="#65c586"/><path d="m53 72 29-11v5l-29 11z" fill="#39a864"/><path d="m59 9 4-2 22 11-4 2z" fill="#f3fff6" opacity=".9"/><circle cx="40" cy="53" r="1.5" fill="#d1f7dc"/></svg>';
     const heading = document.createElement('strong');
     heading.textContent = 'Vamos entender o que aconteceu.';
     const description = document.createElement('p');
@@ -485,7 +489,7 @@
       chip.textContent = topic;
       topics.append(chip);
     });
-    card.append(label, heading, description, topics);
+    card.append(label, visual, heading, description, topics);
     log.append(card);
   }
 
