@@ -313,3 +313,17 @@ footer{border-top:1px solid #e8eeeb}
 }
 @media(max-height:560px){.help-chat-panel{height:calc(100dvh - 96px);min-height:300px}.help-chat-welcome{gap:5px;padding:10px 13px}.help-chat-welcome>p{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.help-chat-panel,.help-chat-status-dot,.help-chat-message-loading{animation:none}.help-chat-close,.help-chat-whatsapp,.help-chat-form button{transition:none}}
+
+/* Relevo 3D sutil para destacar o assistente e as escolhas. */
+.help-chat-avatar{transform:perspective(260px) rotateY(-10deg) rotateX(5deg) translateZ(4px);transform-style:preserve-3d;box-shadow:0 4px 0 #2bc267,0 8px 15px rgba(0,0,0,.18)}
+.help-chat-launcher{position:relative;isolation:isolate;transform:perspective(900px) rotateX(2deg) rotateY(-2deg);transform-origin:bottom right;transform-style:preserve-3d;box-shadow:0 5px 0 #33c86c,0 15px 32px rgba(4,25,39,.28),0 0 0 5px rgba(101,233,145,.12)}
+.help-chat-launcher::before{position:absolute;z-index:-1;right:9px;bottom:-9px;left:9px;height:13px;border-radius:0 0 13px 13px;background:linear-gradient(180deg,#35c86d,#169a50);content:"";transform:translateZ(-8px);filter:drop-shadow(0 3px 5px rgba(8,77,39,.22))}
+.help-chat-launcher::after{position:absolute;z-index:0;top:3px;right:7px;left:7px;height:42%;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0));content:"";pointer-events:none}
+.help-chat-launcher>svg,.help-chat-launcher>span{position:relative;z-index:1}
+.help-chat-choices button{border-bottom-width:3px;border-bottom-color:#c2dfce;transform:perspective(800px) rotateX(.8deg);transform-style:preserve-3d;box-shadow:0 4px 0 #d8ebdf,0 7px 12px rgba(15,62,35,.06)}
+@media(hover:hover) and (pointer:fine){
+  .help-chat-launcher:hover{transform:perspective(900px) translateY(-4px) rotateX(5deg) rotateY(-5deg) scale(1.025);box-shadow:0 6px 0 #29bf64,0 21px 38px rgba(4,25,39,.34),0 0 0 6px rgba(101,233,145,.16)}
+  .help-chat-choices button:hover{transform:perspective(800px) translateY(-3px) rotateX(4deg) rotateY(-2deg);box-shadow:0 5px 0 #b7dcc5,0 12px 19px rgba(15,62,35,.12)}
+}
+@media(hover:none) and (pointer:coarse){.help-chat-launcher:hover,.help-chat-choices button:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.help-chat-avatar,.help-chat-launcher,.help-chat-choices button,.help-chat-launcher:hover,.help-chat-choices button:hover{transform:none;transition:none}}
