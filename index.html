@@ -140,11 +140,11 @@
 <div class="help-chat" id="help-chat">
   <section class="help-chat-panel" id="help-chat-panel" role="dialog" aria-modal="false" aria-labelledby="help-chat-title" hidden>
     <header class="help-chat-top">
-      <div class="help-chat-brand"><span class="help-chat-avatar" aria-hidden="true">BT</span><div><strong id="help-chat-title">Ajuda BuscaTech</strong><span><i class="help-chat-status-dot" aria-hidden="true"></i> Assistente virtual</span></div></div>
+      <div class="help-chat-brand"><span class="help-chat-avatar" aria-hidden="true">BT</span><div><strong id="help-chat-title">Ajuda BuscaTech</strong><span><i class="help-chat-status-dot" aria-hidden="true"></i> Assistente virtual · DF</span></div></div>
       <button class="help-chat-close" id="help-chat-close" type="button" aria-label="Fechar conversa">×</button>
     </header>
     <div class="help-chat-log" id="help-chat-log" role="log" aria-live="polite" aria-relevant="additions text"></div>
-    <p class="help-chat-privacy">Não envie senhas, códigos ou dados pessoais. Se autorizar, o equipamento e os relatos vão ao Gemini, da Google (conversas grátis podem ser usadas para melhorar os serviços); nome e bairro do cadastro ficam fora. O resumo só é salvo pela BuscaTech com seu aceite.</p>
+    <p class="help-chat-privacy"><strong>Privacidade</strong>Não envie senhas, códigos ou dados pessoais. Se autorizar, o equipamento e os relatos vão ao Gemini, da Google (conversas grátis podem ser usadas para melhorar os serviços); nome e bairro do cadastro ficam fora. O resumo só é salvo pela BuscaTech com seu aceite.</p>
     <form class="help-chat-form" id="help-chat-form">
       <label class="visually-hidden" for="help-chat-input">Sua resposta</label>
       <input id="help-chat-input" name="resposta" type="text" maxlength="300" autocomplete="off" placeholder="Digite sua resposta">
@@ -379,7 +379,8 @@
   }
 
   async function getAiReply() {
-    const loading = say('Vou pensar em uma orientação segura para você…');
+    const loading = say('Estou preparando uma orientação segura');
+    loading.classList.add('help-chat-message-loading');
     form.hidden = true;
     question = '';
     try {
@@ -463,6 +464,29 @@
 
   function askNeighborhood() {
     askText('Qual é o seu bairro? Assim a equipe confere a cobertura e a taxa de deslocamento.', 'neighborhood', 'Seu bairro');
+  }
+
+  function showWelcomeCard() {
+    const card = document.createElement('aside');
+    card.className = 'help-chat-welcome';
+    card.setAttribute('aria-label', 'Sobre o atendimento virtual');
+
+    const label = document.createElement('span');
+    label.className = 'help-chat-welcome-label';
+    label.textContent = 'ORIENTAÇÃO INICIAL';
+    const heading = document.createElement('strong');
+    heading.textContent = 'Vamos entender o que aconteceu.';
+    const description = document.createElement('p');
+    description.textContent = 'Lentidão, aquecimento, tela ou dificuldade para ligar? Conte pra gente.';
+    const topics = document.createElement('div');
+    topics.className = 'help-chat-topics';
+    ['Lentidão', 'Aquecimento', 'Inicialização'].forEach(topic => {
+      const chip = document.createElement('span');
+      chip.textContent = topic;
+      topics.append(chip);
+    });
+    card.append(label, heading, description, topics);
+    log.append(card);
   }
 
   async function askSaveConsent() {
@@ -562,7 +586,8 @@
   function startConversation() {
     if (started && log.childElementCount) return;
     started = true;
-    askText('Olá! Sou o assistente virtual da BuscaTech. Vou fazer algumas perguntas rápidas para entender o que está acontecendo e preparar um resumo. Como posso te chamar?', 'name', 'Seu nome');
+    showWelcomeCard();
+    askText('Oi! Para organizar seu atendimento, como posso te chamar?', 'name', 'Seu nome');
   }
 
   launcher.addEventListener('click', () => {
