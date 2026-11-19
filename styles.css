@@ -365,6 +365,7 @@ html[data-theme="dark"] .coverage{background:#14271c;border-color:#2c4935}
 html[data-theme="dark"] .coverage span{color:#abcab5}
 html[data-theme="dark"] .coverage p{color:#e0eee4}
 html[data-theme="dark"] .coverage i{color:#64836e}
+html[data-theme="dark"] .modalities{background:#0d1713}
 html[data-theme="dark"] .services{background:linear-gradient(180deg,#101b17 0%,#0d1713 100%)}
 html[data-theme="dark"] .section-heading .eyebrow,html[data-theme="dark"] .care-copy .eyebrow{color:#85e9a3}
 html[data-theme="dark"] .service{background:#14211b;border-color:#2a4035;box-shadow:0 7px 22px rgba(0,0,0,.18)}
