@@ -4,11 +4,11 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BuscaTech — Atendimento em casa ou com retirada no DF</title>
   <meta name="description" content="Manutenção de computadores no DF: atendimento técnico em residência ou retirada para a oficina, com devolução agendada. Consulte a BuscaTech.">
-  <meta name="theme-color" content="#071d30">
-  <script>(()=>{let theme='light';try{const saved=localStorage.getItem('buscatech-theme');theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{}document.documentElement.dataset.theme=theme})();</script>
+  <meta name="theme-color" content="#ffffff">
+  <script>(()=>{const preference=window.matchMedia('(prefers-color-scheme: dark)');const themeColor=document.querySelector('meta[name="theme-color"]');const apply=()=>{const dark=preference.matches;document.documentElement.dataset.theme=dark?'dark':'light';if(themeColor)themeColor.content=dark?'#0b1411':'#ffffff'};apply();if(preference.addEventListener)preference.addEventListener('change',apply);else preference.addListener(apply)})();</script>
   <meta property="og:type" content="website"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="BuscaTech — Atendimento em casa ou com retirada no DF"><meta property="og:description" content="Manutenção de computadores em residência ou na oficina, com retirada e devolução agendadas no DF.">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261119-mobile-fix">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261119-system-theme">
 </head>
 <body>
 <a class="skip" href="#principal">Ir para o conteúdo</a>
@@ -16,10 +16,6 @@
   <a class="brand" href="#inicio" aria-label="BuscaTech início">Busca<span>Tech</span><small>DF</small></a>
   <nav aria-label="Menu principal"><a href="#modalidades">Modalidades</a><a href="#servicos">Serviços</a><a href="#como-funciona">Como funciona</a><a href="#agendamento">Agendamento</a><a href="#acompanhar">Acompanhar</a><a href="#contato">Contato</a></nav>
   <div class="nav-actions">
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Ativar tema escuro" aria-pressed="false" title="Ativar tema escuro">
-      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.4 15.2A8.6 8.6 0 0 1 8.8 3.6 8.7 8.7 0 1 0 20.4 15.2Z"/></svg>
-    </button>
     <a class="button compact" href="https://wa.me/5561991533486?text=Ol%C3%A1%2C%20BuscaTech!%20Gostaria%20de%20solicitar%20um%20atendimento." target="_blank" rel="noopener">Fale no WhatsApp <span aria-hidden="true">↗</span></a>
   </div>
 </div></header>
@@ -834,30 +830,6 @@
       customer.neighborhood = answer.slice(0, 100);
       askSaveConsent();
     }
-  });
-})();
-</script>
-<script>
-(() => {
-  const button = document.getElementById('theme-toggle');
-  const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (!button) return;
-
-  function setTheme(theme, save = false) {
-    const isDark = theme === 'dark';
-    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-    button.setAttribute('aria-pressed', String(isDark));
-    button.setAttribute('aria-label', isDark ? 'Ativar tema claro' : 'Ativar tema escuro');
-    button.title = isDark ? 'Ativar tema claro' : 'Ativar tema escuro';
-    if (themeColor) themeColor.content = isDark ? '#0b1411' : '#ffffff';
-    if (save) {
-      try { localStorage.setItem('buscatech-theme', isDark ? 'dark' : 'light'); } catch {}
-    }
-  }
-
-  setTheme(document.documentElement.dataset.theme);
-  button.addEventListener('click', () => {
-    setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
   });
 })();
 </script>
