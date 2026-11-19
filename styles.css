@@ -336,3 +336,101 @@ footer{border-top:1px solid #e8eeeb}
 @keyframes help-chat-computer-float{0%,100%{transform:translateY(1px) rotateY(-13deg) rotateX(4deg)}50%{transform:translateY(-4px) rotateY(-8deg) rotateX(2deg)}}
 @media(max-width:480px){.help-chat-welcome{min-height:136px;padding-right:86px}.help-chat-3d-visual{top:35px;right:7px;width:68px;height:61px}}
 @media(prefers-reduced-motion:reduce){.help-chat-3d-visual svg{animation:none;transform:rotateY(-10deg) rotateX(3deg)}}
+
+/* Alternância de tema no cabeçalho. */
+.nav-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.theme-toggle{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;padding:0;border:1px solid #d9e4dd;border-radius:12px;background:#f4f8f5;color:#087342;cursor:pointer;transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
+.theme-toggle:hover{transform:translateY(-1px);border-color:#a8d4b6;background:#eaf6ee;box-shadow:0 5px 12px rgba(16,73,39,.1)}
+.theme-toggle:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.theme-icon{width:20px;height:20px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-moon{display:none}
+.theme-toggle-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){.nav-actions{gap:8px}.theme-toggle{flex-basis:40px;width:40px;height:40px}}
+@media(max-width:390px){.brand{font-size:24px}.brand small{margin-left:6px}.nav-actions{gap:7px}.nav .compact{font-size:10px;padding:9px;gap:5px}.theme-toggle{flex-basis:38px;width:38px;height:38px}}
+@media(prefers-reduced-motion:reduce){.theme-toggle{transition:none}}
+
+/* Paleta escura para as áreas claras do site e do assistente. */
+html[data-theme="dark"]{color-scheme:dark;--navy:#071d30;--blue:#79b9ff;--green:#65e991;--ink:#e4eee8;--muted:#aabbb2;--paper:#101b17;--line:#2b4036}
+html[data-theme="dark"] body{background:#0b1411;color:var(--ink)}
+html[data-theme="dark"] .skip{background:#14231c;color:var(--ink)}
+html[data-theme="dark"] .header{background:rgba(9,21,17,.95);border-color:#263a30}
+html[data-theme="dark"] .nav nav a{color:#d7e4dc}
+html[data-theme="dark"] .nav nav a:hover,html[data-theme="dark"] .text-link:hover{color:#8aefaa}
+html[data-theme="dark"] .brand small{border-color:#3a5045;color:#d3e1d9}
+html[data-theme="dark"] .theme-toggle{border-color:#3a5145;background:#15241d;color:#8df0aa}
+html[data-theme="dark"] .theme-toggle:hover{border-color:#5d9870;background:#1b3024}
+html[data-theme="dark"] .theme-icon-sun{display:none}
+html[data-theme="dark"] .theme-icon-moon{display:block}
+html[data-theme="dark"] .coverage{background:#14271c;border-color:#2c4935}
+html[data-theme="dark"] .coverage span{color:#abcab5}
+html[data-theme="dark"] .coverage p{color:#e0eee4}
+html[data-theme="dark"] .coverage i{color:#64836e}
+html[data-theme="dark"] .services{background:linear-gradient(180deg,#101b17 0%,#0d1713 100%)}
+html[data-theme="dark"] .section-heading .eyebrow,html[data-theme="dark"] .care-copy .eyebrow{color:#85e9a3}
+html[data-theme="dark"] .service{background:#14211b;border-color:#2a4035;box-shadow:0 7px 22px rgba(0,0,0,.18)}
+html[data-theme="dark"] .service:hover{border-color:#41684d;box-shadow:0 16px 35px rgba(0,0,0,.3)}
+html[data-theme="dark"] .service-number{color:#a8c1b0}
+html[data-theme="dark"] .service-bottom{border-color:#2a4035}
+html[data-theme="dark"] .service-bottom a,html[data-theme="dark"] .service-demo summary,html[data-theme="dark"] .help-chat-restart{color:#7be99d}
+html[data-theme="dark"] .diagnostic{background:#172831;border-color:#2b4149}
+html[data-theme="dark"] .diagnostic p:not(.price),html[data-theme="dark"] .pricing-note{color:var(--muted)}
+html[data-theme="dark"] .coupon{background:#15251b;border-color:#42644b}
+html[data-theme="dark"] .coupon .eyebrow,html[data-theme="dark"] .coupon-code strong{color:#84e9a2}
+html[data-theme="dark"] .coupon-code{border-color:#42644b}
+html[data-theme="dark"] .coupon p,html[data-theme="dark"] .coupon-code span{color:#bdccc2}
+html[data-theme="dark"] .care-section{background:#0d1713}
+html[data-theme="dark"] .care-image-wrap{background:#1b2d32}
+html[data-theme="dark"] .care-copy h2 span{color:#70e895}
+html[data-theme="dark"] .care-points{border-color:#293d32;color:#c6d8cd}
+html[data-theme="dark"] .care-points span{background:#183a26;color:#7ce99d}
+html[data-theme="dark"] .steps article{border-color:#31453a}
+html[data-theme="dark"] .steps article>span{color:#80bfff}
+html[data-theme="dark"] footer{border-color:#263a30}
+html[data-theme="dark"] .footer-inner p,html[data-theme="dark"] .footer-inner>a:last-child{color:#aabbb2}
+html[data-theme="dark"] .modality-card{background:#14211b;border-color:#2e4538;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+html[data-theme="dark"] .modality-card.pickup-card{background:#17271f;border-color:#365441}
+html[data-theme="dark"] .modality-icon,html[data-theme="dark"] .pickup-card .modality-icon{background:#1b3b27;color:#7de99d}
+html[data-theme="dark"] .modality-label{color:#9ed4ae}
+html[data-theme="dark"] .modality-card li{color:#c4d8ca}
+html[data-theme="dark"] .modality-card li:before{color:#74e693}
+html[data-theme="dark"] .modality-note{color:#aabbb2}
+html[data-theme="dark"] .service-demo{border-color:#2b4036}
+html[data-theme="dark"] .demo-play{background:#1b3b27;color:#83e9a0}
+html[data-theme="dark"] .demo-toggle{color:#83e9a0}
+html[data-theme="dark"] .demo-content:before{background:#355742}
+html[data-theme="dark"] .demo-number{border-color:#42634d;background:#182a20;color:#9aefb0}
+html[data-theme="dark"] .demo-step p,html[data-theme="dark"] .diagnostic .demo-step p{color:#b4c7bb}
+html[data-theme="dark"] .demo-step p strong{color:#e0eee4}
+html[data-theme="dark"] .demo-disclaimer{color:var(--muted)}
+html[data-theme="dark"] .logo-panel,html[data-theme="dark"] .hero-float-card{background:#15251e;border-color:#31483c;color:#e4eee8}
+html[data-theme="dark"] .journey{border-color:#34483d}
+html[data-theme="dark"] .service-finder{background:#14211b;border-color:#2e4538;box-shadow:0 16px 40px rgba(0,0,0,.22)}
+html[data-theme="dark"] .finder-progress-track{background:#283b30}
+html[data-theme="dark"] .finder-intro,html[data-theme="dark"] .finder-choice-copy>span{color:#b0c1b7}
+html[data-theme="dark"] .finder-choice{background:#192820;border-color:#354b3e;color:#e4eee8}
+html[data-theme="dark"] .finder-choice:hover{background:#1d3024;border-color:#5a8a68}
+html[data-theme="dark"] .finder-choice-arrow,html[data-theme="dark"] .finder-back,html[data-theme="dark"] .finder-restart{color:#8de9a7}
+html[data-theme="dark"] .finder-result{background:#17281e;border-color:#3b5c44}
+html[data-theme="dark"] .finder-result-label,html[data-theme="dark"] .finder-result-price{color:#8ceba6}
+html[data-theme="dark"] .finder-result p,html[data-theme="dark"] .finder-result .finder-selected-modality{color:#c8dbce}
+html[data-theme="dark"] .finder-result .finder-caveat{border-color:#354c3b}
+html[data-theme="dark"] .help-chat-panel{background:#101b16;border-color:#34483d}
+html[data-theme="dark"] .help-chat-log{background:linear-gradient(180deg,#111e18 0%,#0e1914 54%,#0c1511 100%)}
+html[data-theme="dark"] .help-chat-welcome{border-color:#35513e;background:linear-gradient(135deg,#1a3021 0%,#16251b 100%)}
+html[data-theme="dark"] .help-chat-welcome-label{color:#83e9a0}
+html[data-theme="dark"] .help-chat-welcome>strong{color:#e3f0e7}
+html[data-theme="dark"] .help-chat-welcome>p{color:#bdcfc3}
+html[data-theme="dark"] .help-chat-topics span{border-color:#3c5a44;background:#1c2d21;color:#c8dfce}
+html[data-theme="dark"] .help-chat-message{border-color:#33473b;background:#1a2820;color:#e0ebe3}
+html[data-theme="dark"] .help-chat-message.user{border-color:#31593c;background:linear-gradient(145deg,#1b3a25,#1b3322);color:#d7f1dd}
+html[data-theme="dark"] .help-chat-choices button{border-color:#3a5943;background:#18281e;color:#d0ead6;box-shadow:0 4px 0 #203b29,0 7px 12px rgba(0,0,0,.18)}
+html[data-theme="dark"] .help-chat-choices button::after{color:#82e9a0}
+html[data-theme="dark"] .help-chat-choices button:hover{border-color:#5c946b;background:#203629;box-shadow:0 5px 0 #274832,0 12px 19px rgba(0,0,0,.24)}
+html[data-theme="dark"] .help-chat-summary{border-color:#354b3d;background:#17251c;color:#ccded1}
+html[data-theme="dark"] .help-chat-send-note{color:#aabbb2}
+html[data-theme="dark"] .help-chat-privacy{border-color:#2a3c31;background:#111c16;color:#aebfb4}
+html[data-theme="dark"] .help-chat-privacy strong{color:#d4e5d9}
+html[data-theme="dark"] .help-chat-form{border-color:#2a3d32;background:#101a15}
+html[data-theme="dark"] .help-chat-form input{border-color:#3a5144;background:#18251d;color:#e4eee8}
+html[data-theme="dark"] .help-chat-form input::placeholder{color:#9bac9f}
+html[data-theme="dark"] .help-chat-form input:focus{border-color:#70d68d;box-shadow:0 0 0 4px rgba(72,187,103,.16)}
