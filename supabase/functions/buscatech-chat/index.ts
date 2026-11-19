@@ -16,7 +16,7 @@ const corsHeaders = (origin: string) => ({
 function json(body: Record<string, unknown>, status: number, origin: string) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders(origin), "Content-Type": "application/json; charset=utf-8" },
+    headers: { ...corsHeaders(origin), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });
 }
 
@@ -81,6 +81,44 @@ function publicOrder(order: Record<string, unknown>) {
   };
 }
 
+const serviceStatuses = new Set([
+  "received", "diagnosis", "quote_pending", "approved",
+  "in_service", "ready", "returned", "cancelled",
+]);
+
+const adminOrderColumns = "id, customer_name, device, symptom, modality, pickup_day, neighborhood, service_status, quote_status, quote_description, quote_amount, created_at, updated_at";
+
+function adminOrder(order: Record<string, unknown>) {
+  return {
+    id: order.id,
+    customerName: order.customer_name,
+    device: order.device,
+    symptom: order.symptom,
+    modality: order.modality,
+    pickupDay: order.pickup_day,
+    neighborhood: order.neighborhood,
+    serviceStatus: order.service_status,
+    quoteStatus: order.quote_status,
+    quoteDescription: order.quote_description,
+    quoteAmount: order.quote_amount,
+    createdAt: order.created_at,
+    updatedAt: order.updated_at,
+  };
+}
+
+async function authorizedAdmin(request: Request, apiKey: string) {
+  const expectedEmail = env("BUSCATECH_ADMIN_EMAIL").toLowerCase();
+  const bearer = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!expectedEmail || !bearer) return false;
+
+  const authClient = createClient(env("SUPABASE_URL"), apiKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { data, error } = await authClient.auth.getUser(bearer);
+  return !error && data.user?.email_confirmed_at != null &&
+    data.user.email?.toLowerCase() === expectedEmail;
+}
+
 Deno.serve(async (request) => {
   const origin = request.headers.get("origin") ?? "";
   if (!allowedOrigins.has(origin)) {
@@ -130,6 +168,79 @@ Deno.serve(async (request) => {
     } catch {
       return json({ error: "O acompanhamento está indisponível no momento." }, 503, origin);
     }
+  }
+
+  if (body.action === "admin_list" || body.action === "admin_update") {
+    try {
+      if (!(await authorizedAdmin(request, apiKey))) {
+        return json({ error: "Esta conta não tem acesso à área da equipe." }, 403, origin);
+      }
+    } catch {
+      return json({ error: "Não foi possível validar o acesso da equipe." }, 503, origin);
+    }
+
+    if (body.action === "admin_list") {
+      const { data, error } = await admin
+        .from("chatbot_cases")
+        .select(adminOrderColumns)
+        .order("created_at", { ascending: false })
+        .limit(250);
+      if (error) return json({ error: "Não foi possível carregar os atendimentos." }, 503, origin);
+      return json({ orders: (data ?? []).map((order) => adminOrder(order)) }, 200, origin);
+    }
+
+    const caseId = boundedText(body.caseId, 36);
+    const serviceStatus = boundedText(body.serviceStatus, 32);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(caseId)) {
+      return json({ error: "Atendimento inválido." }, 400, origin);
+    }
+    if (!serviceStatuses.has(serviceStatus)) {
+      return json({ error: "Escolha um status de atendimento válido." }, 400, origin);
+    }
+
+    const { data: current, error: currentError } = await admin
+      .from("chatbot_cases")
+      .select(adminOrderColumns)
+      .eq("id", caseId)
+      .maybeSingle();
+    if (currentError) return json({ error: "Não foi possível abrir este atendimento." }, 503, origin);
+    if (!current) return json({ error: "Atendimento não encontrado." }, 404, origin);
+
+    const publishQuote = body.publishQuote === true;
+    const isQuoteDecisionFinal = current.quote_status === "approved" || current.quote_status === "declined";
+    const quoteDescription = boundedText(body.quoteDescription, 1000) || null;
+    const rawAmount = body.quoteAmount;
+    const quoteAmount = rawAmount === null || rawAmount === undefined || rawAmount === ""
+      ? null
+      : Number(rawAmount);
+
+    if (quoteAmount !== null && (!Number.isFinite(quoteAmount) || quoteAmount < 0 || quoteAmount > 99999999.99)) {
+      return json({ error: "Informe um valor de orçamento válido." }, 400, origin);
+    }
+    if (publishQuote && (!quoteDescription || quoteAmount === null || !Number.isFinite(quoteAmount) || quoteAmount < 0 || quoteAmount > 99999999.99)) {
+      return json({ error: "Para enviar o orçamento, informe a descrição e um valor válido." }, 400, origin);
+    }
+
+    const quoteStatus = publishQuote
+      ? "pending"
+      : current.quote_status === "pending" ? "not_ready" : current.quote_status;
+    const update = {
+      service_status: serviceStatus,
+      quote_status: quoteStatus,
+      quote_description: isQuoteDecisionFinal && !publishQuote ? current.quote_description : quoteDescription,
+      quote_amount: isQuoteDecisionFinal && !publishQuote ? current.quote_amount : quoteAmount,
+      quote_decided_at: publishQuote ? null : current.quote_decided_at,
+    };
+    const { data: updated, error: updateError } = await admin
+      .from("chatbot_cases")
+      .update(update)
+      .eq("id", caseId)
+      .eq("quote_status", current.quote_status)
+      .select(adminOrderColumns)
+      .maybeSingle();
+    if (updateError) return json({ error: "Não foi possível salvar as alterações." }, 503, origin);
+    if (!updated) return json({ error: "Este atendimento mudou enquanto estava aberto. Atualize a lista e tente novamente." }, 409, origin);
+    return json({ order: adminOrder(updated) }, 200, origin);
   }
 
   if (body.action === "save") {

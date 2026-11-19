@@ -28,14 +28,25 @@ Depois que a função e a configuração estiverem prontas, publique os arquivos
 
 Quando o cliente autoriza salvar o resumo no chatbot, a função gera um código privado aleatório e o mostra ao cliente. Esse código permite consultar o andamento e aprovar ou recusar um orçamento pendente. A página retorna apenas status e dados do orçamento; nome, bairro e relato continuam privados. O cliente deve guardar o código e não compartilhá-lo.
 
-Para atualizar um atendimento, no painel Supabase abra **Table Editor > public.chatbot_cases** e localize o cadastro. Edite a linha e salve:
+Depois de ativar a área da equipe descrita abaixo, use-a para atualizar pedidos. Como alternativa administrativa, no painel Supabase abra **Table Editor > public.chatbot_cases** e localize o cadastro. Edite a linha e salve:
 
 - `service_status`: `received` (recebido), `diagnosis` (em avaliação), `quote_pending` (orçamento enviado), `approved` (aprovado), `in_service` (em execução), `ready` (pronto), `returned` (devolvido) ou `cancelled` (encerrado).
 - Para oferecer orçamento, preencha `quote_description` e `quote_amount`, e defina `quote_status` como `pending`. Preencha os três campos juntos para cumprir as validações da tabela.
 - A resposta do cliente altera `quote_status` para `approved` ou `declined`. Em caso de aprovação, `service_status` passa para `approved`; em caso de recusa, passa para `cancelled`. Depois, atualize o status de serviço conforme o trabalho avança.
 - `updated_at` é atualizado automaticamente. Não altere `tracking_token`; ele funciona como credencial privada do cliente.
 
-O histórico é um MVP operado pelo Table Editor; ainda não há painel administrativo próprio no site.
+O painel administrativo oferece a lista e o estado atual dos atendimentos; ele não mantém uma linha do tempo de alterações anteriores.
+
+## Área da equipe para atualizar atendimentos
+
+O site inclui `admin.html`, uma página com login, busca de pedidos e formulário para alterar andamento e orçamento. O navegador nunca recebe a chave `service_role`; cada leitura e alteração de dados passa pela Edge Function e exige uma sessão Supabase autenticada.
+
+1. Em **Authentication > Users**, crie um usuário para o e-mail que será administrador e confirme esse usuário. Use uma senha forte e guarde-a no gerenciador de senhas.
+2. Em **Edge Functions > Secrets**, crie `BUSCATECH_ADMIN_EMAIL` com exatamente o mesmo e-mail do usuário autorizado. Esse endereço define quem pode usar a área da equipe.
+3. Publique a versão atual de `functions/buscatech-chat/index.ts` conforme o passo 4 acima. Sem esse deploy e o secret de e-mail, a tela administrativa não consegue carregar pedidos.
+4. Abra `https://victorrmribeiro.github.io/SiteBuscaTech/admin.html`, entre com o e-mail e senha autorizados, selecione um atendimento e salve as alterações. Para enviar um orçamento, informe a descrição e o valor e marque **Enviar orçamento para aprovação**.
+
+O painel lista até 250 atendimentos mais recentes. As respostas do cliente continuam sendo feitas pelo código privado na página pública de acompanhamento.
 
 ## Como o chat usa os dados
 

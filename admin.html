@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b241b">
+  <title>Área da equipe · BuscaTech</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=20261119-admin-1">
+</head>
+<body>
+  <header class="admin-header">
+    <a class="admin-brand" href="./" aria-label="BuscaTech início">Busca<span>Tech</span><small>DF</small></a>
+    <a class="back-to-site" href="./">Voltar ao site <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main class="admin-main">
+    <section class="login-view" id="login-view" aria-labelledby="login-title">
+      <div class="login-art" aria-hidden="true">
+        <span class="orbit orbit-a"></span><span class="orbit orbit-b"></span>
+        <div class="login-mark"><span>BT</span><i></i><i></i><i></i><i></i></div>
+        <p>Atendimento em boas mãos.</p>
+      </div>
+      <div class="login-content">
+        <p class="overline">ÁREA EXCLUSIVA DA EQUIPE</p>
+        <h1 id="login-title">Bem-vindo de volta.</h1>
+        <p class="login-intro">Entre para acompanhar os pedidos e manter seus clientes atualizados.</p>
+        <form id="login-form" class="login-form">
+          <label for="login-email">E-mail autorizado</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required placeholder="voce@exemplo.com">
+          <label for="login-password">Senha</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="Sua senha do Supabase">
+          <button class="primary-button" type="submit">Entrar na área da equipe <span aria-hidden="true">→</span></button>
+        </form>
+        <p id="login-message" class="notice" role="status" aria-live="polite" hidden></p>
+        <p class="login-footnote"><span aria-hidden="true">◈</span> Acesso protegido pelo Supabase. Somente a conta autorizada pode ver os dados.</p>
+      </div>
+    </section>
+
+    <section class="dashboard-view" id="dashboard-view" hidden aria-labelledby="dashboard-title">
+      <div class="dashboard-topline">
+        <div>
+          <p class="overline">PAINEL DE OPERAÇÃO</p>
+          <h1 id="dashboard-title">Pedidos e atendimentos</h1>
+          <p class="dashboard-subtitle">Acompanhe cada etapa e atualize o cliente sem complicação.</p>
+        </div>
+        <div class="dashboard-actions">
+          <button class="secondary-button" id="refresh-orders" type="button"><span aria-hidden="true">↻</span> Atualizar</button>
+          <button class="logout-button" id="logout-button" type="button">Sair</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" aria-label="Resumo dos pedidos">
+        <article class="stat-card"><span class="stat-icon green" aria-hidden="true">▤</span><div><span class="stat-label">EM ABERTO</span><strong id="stat-open">—</strong></div><span class="stat-caption">pedidos ativos</span></article>
+        <article class="stat-card"><span class="stat-icon amber" aria-hidden="true">◷</span><div><span class="stat-label">AGUARDANDO CLIENTE</span><strong id="stat-quotes">—</strong></div><span class="stat-caption">orçamentos enviados</span></article>
+        <article class="stat-card"><span class="stat-icon blue" aria-hidden="true">✓</span><div><span class="stat-label">PRONTOS</span><strong id="stat-ready">—</strong></div><span class="stat-caption">para combinar devolução</span></article>
+      </div>
+
+      <div class="workspace-grid">
+        <section class="orders-panel" aria-labelledby="orders-title">
+          <div class="panel-heading">
+            <div><h2 id="orders-title">Atendimentos</h2><span id="orders-count" class="muted-count">Carregando…</span></div>
+            <label class="search-box"><span aria-hidden="true">⌕</span><span class="visually-hidden">Buscar atendimento</span><input id="search-orders" type="search" placeholder="Buscar cliente ou aparelho"></label>
+          </div>
+          <div class="filter-row" role="group" aria-label="Filtrar atendimentos">
+            <button class="filter-chip is-active" type="button" data-filter="all">Todos</button>
+            <button class="filter-chip" type="button" data-filter="open">Em aberto</button>
+            <button class="filter-chip" type="button" data-filter="quote">Orçamento</button>
+            <button class="filter-chip" type="button" data-filter="ready">Prontos</button>
+          </div>
+          <div class="order-list" id="order-list" aria-live="polite"></div>
+        </section>
+
+        <section class="detail-panel" id="detail-panel" aria-labelledby="detail-title">
+          <div class="empty-detail" id="empty-detail">
+            <span class="empty-icon" aria-hidden="true">↖</span>
+            <h2>Escolha um atendimento</h2>
+            <p>Selecione um pedido à esquerda para ver as informações e atualizar o andamento.</p>
+          </div>
+          <form id="order-form" hidden>
+            <div class="detail-heading">
+              <div><p class="overline">DETALHES DO PEDIDO</p><h2 id="detail-title">Atendimento</h2></div>
+              <span id="detail-created" class="detail-date"></span>
+            </div>
+            <div class="customer-summary" id="customer-summary"></div>
+            <label class="field-label" for="service-status">Andamento do serviço</label>
+            <select id="service-status" name="serviceStatus" required>
+              <option value="received">Solicitação recebida</option>
+              <option value="diagnosis">Em avaliação técnica</option>
+              <option value="quote_pending">Orçamento aguardando resposta</option>
+              <option value="approved">Orçamento aprovado · aguardando início</option>
+              <option value="in_service">Serviço em andamento</option>
+              <option value="ready">Pronto para combinar devolução</option>
+              <option value="returned">Equipamento devolvido</option>
+              <option value="cancelled">Atendimento encerrado</option>
+            </select>
+
+            <div class="quote-editor">
+              <div class="quote-editor-heading"><span class="quote-icon" aria-hidden="true">R$</span><div><h3>Orçamento</h3><p>Informe o valor e o que será feito.</p></div></div>
+              <label class="field-label" for="quote-description">Descrição do serviço</label>
+              <textarea id="quote-description" name="quoteDescription" rows="3" maxlength="1000" placeholder="Ex.: limpeza interna e troca da pasta térmica"></textarea>
+              <label class="field-label" for="quote-amount">Valor total</label>
+              <div class="money-input"><span aria-hidden="true">R$</span><input id="quote-amount" name="quoteAmount" type="number" min="0" max="99999999.99" step="0.01" placeholder="0,00" inputmode="decimal"></div>
+              <label class="publish-quote-toggle" for="publish-quote"><input id="publish-quote" name="publishQuote" type="checkbox"><span class="fake-checkbox" aria-hidden="true">✓</span><span><strong>Enviar orçamento para aprovação</strong><small>O cliente poderá aprovar ou recusar com o código de acompanhamento.</small></span></label>
+              <p id="quote-state-note" class="quote-state-note"></p>
+            </div>
+            <button class="primary-button save-button" id="save-order" type="submit">Salvar alterações <span aria-hidden="true">→</span></button>
+            <p id="save-message" class="notice" role="status" aria-live="polite" hidden></p>
+          </form>
+        </section>
+      </div>
+      <p id="dashboard-message" class="dashboard-message" role="status" aria-live="polite" hidden></p>
+      <p class="privacy-note"><span aria-hidden="true">◈</span> Dados de clientes visíveis somente para a equipe autorizada. Não compartilhe capturas deste painel.</p>
+    </section>
+  </main>
+
+  <footer class="admin-footer"><span>BuscaTech · Área da equipe</span><a href="https://victorrmribeiro.github.io/SiteBuscaTech/">Ir para o site público ↗</a></footer>
+  <script src="chatbot-config.js"></script>
+  <script src="admin.js?v=20261119-admin-1"></script>
+</body>
+</html>
