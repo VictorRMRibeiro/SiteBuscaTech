@@ -15,18 +15,12 @@
   const statusLabels = {
     received: 'Solicitação recebida',
     diagnosis: 'Em avaliação',
-    quote_pending: 'Orçamento enviado',
-    approved: 'Aprovado',
+    quote_pending: 'Orçamento enviado pelo WhatsApp',
+    approved: 'Aceito pelo cliente via WhatsApp',
     in_service: 'Em andamento',
     ready: 'Pronto',
     returned: 'Devolvido',
     cancelled: 'Encerrado'
-  };
-  const quoteLabels = {
-    not_ready: 'Ainda não enviado ao cliente.',
-    pending: 'Aguardando resposta do cliente.',
-    approved: 'Cliente aprovou este orçamento.',
-    declined: 'Cliente recusou este orçamento.'
   };
 
   let session = null;
@@ -122,7 +116,7 @@
     return orders.filter(order => {
       const statusMatches = activeFilter === 'all'
         || (activeFilter === 'open' && !terminalStatuses.has(order.serviceStatus))
-        || (activeFilter === 'quote' && order.quoteStatus === 'pending')
+        || (activeFilter === 'quote' && order.serviceStatus === 'quote_pending')
         || (activeFilter === 'ready' && order.serviceStatus === 'ready');
       const searchMatches = !query || [order.customerName, order.device, order.neighborhood]
         .some(value => String(value || '').toLocaleLowerCase('pt-BR').includes(query));
@@ -132,7 +126,7 @@
 
   function renderStats() {
     document.getElementById('stat-open').textContent = orders.filter(order => !terminalStatuses.has(order.serviceStatus)).length;
-    document.getElementById('stat-quotes').textContent = orders.filter(order => order.quoteStatus === 'pending').length;
+    document.getElementById('stat-quotes').textContent = orders.filter(order => order.serviceStatus === 'quote_pending').length;
     document.getElementById('stat-ready').textContent = orders.filter(order => order.serviceStatus === 'ready').length;
   }
 
@@ -168,7 +162,7 @@
       date.textContent = formatDate(order.createdAt);
       const quote = document.createElement('span');
       quote.className = 'order-quote-state';
-      quote.textContent = order.quoteStatus === 'pending' ? 'Orçamento pendente' : '';
+      quote.textContent = order.serviceStatus === 'quote_pending' ? 'Aguardando resposta pelo WhatsApp' : '';
       bottom.append(date, quote);
       top.append(name, status);
       item.append(top, description, bottom);
@@ -207,8 +201,6 @@
     document.getElementById('quote-description').value = order.quoteDescription || '';
     document.getElementById('quote-amount').value = order.quoteAmount === null || order.quoteAmount === undefined
       ? '' : Number(order.quoteAmount).toFixed(2);
-    document.getElementById('publish-quote').checked = order.quoteStatus === 'pending';
-    document.getElementById('quote-state-note').textContent = quoteLabels[order.quoteStatus] || '';
     showNotice(saveMessage, '');
     renderList();
   }
@@ -273,35 +265,13 @@
     });
   });
 
-  document.getElementById('publish-quote').addEventListener('change', event => {
-    const order = orders.find(item => item.id === selectedId);
-    if (event.currentTarget.checked) {
-      document.getElementById('service-status').value = 'quote_pending';
-      document.getElementById('quote-state-note').textContent = order?.quoteStatus === 'pending'
-        ? 'O cliente poderá ver o orçamento atualizado assim que você salvar.'
-        : 'O orçamento ficará disponível imediatamente na página de acompanhamento do cliente.';
-    } else {
-      if (document.getElementById('service-status').value === 'quote_pending') {
-        document.getElementById('service-status').value = 'diagnosis';
-      }
-      document.getElementById('quote-state-note').textContent = order?.quoteStatus === 'pending'
-        ? 'Ao salvar, o orçamento deixará de aguardar resposta.'
-        : quoteLabels[order?.quoteStatus] || '';
-    }
-  });
 
   orderForm.addEventListener('submit', async event => {
     event.preventDefault();
     const order = orders.find(item => item.id === selectedId);
     if (!order) return;
-    const publishQuote = document.getElementById('publish-quote').checked;
     const quoteDescription = document.getElementById('quote-description').value.trim();
     const amountInput = document.getElementById('quote-amount').value;
-    if (publishQuote && (!quoteDescription || amountInput === '' || !Number.isFinite(Number(amountInput)) || Number(amountInput) < 0)) {
-      showNotice(saveMessage, 'Para enviar o orçamento, informe a descrição e um valor válido.');
-      return;
-    }
-    if (publishQuote && !window.confirm('Enviar este orçamento para o cliente agora? Ele ficará disponível na página de acompanhamento.')) return;
 
     const button = document.getElementById('save-order');
     button.disabled = true;
@@ -313,13 +283,12 @@
         serviceStatus: document.getElementById('service-status').value,
         quoteDescription,
         quoteAmount: amountInput === '' ? null : Number(amountInput),
-        publishQuote
       });
       orders = orders.map(item => item.id === result.order.id ? result.order : item);
       renderStats();
       renderList();
       selectOrder(result.order.id);
-      showNotice(saveMessage, publishQuote ? 'Salvo. O orçamento já está disponível para o cliente.' : 'As informações do atendimento foram atualizadas.', false);
+      showNotice(saveMessage, 'Atualizado. Combine o orçamento e os próximos passos pelo WhatsApp.', false);
     } catch (error) {
       showNotice(saveMessage, error.message || 'Não foi possível salvar. Atualize os dados e tente novamente.');
     } finally {

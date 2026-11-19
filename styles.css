@@ -424,61 +424,13 @@ html[data-theme="dark"] .help-chat-form input{border-color:#3a5144;background:#1
 html[data-theme="dark"] .help-chat-form input::placeholder{color:#9bac9f}
 html[data-theme="dark"] .help-chat-form input:focus{border-color:#70d68d;box-shadow:0 0 0 4px rgba(72,187,103,.16)}
 
-/* Acompanhamento e resposta ao orçamento. */
-.tracking-section{background:var(--paper)}
-.tracking-card{max-width:800px;margin-inline:auto;padding:clamp(21px,4vw,34px);border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 14px 35px rgba(13,47,57,.07)}
-.tracking-card label{display:block;margin-bottom:9px;color:var(--ink);font-size:13px;font-weight:700}
-.tracking-form-row{display:flex;gap:10px}
-.tracking-form-row input{flex:1;min-width:0;height:52px;padding:0 15px;border:1px solid #cfded4;border-radius:11px;background:#fbfdfb;color:var(--ink);font:600 13px 'DM Sans',sans-serif;letter-spacing:.04em;outline:none}
-.tracking-form-row input:focus{border-color:#3caa65;box-shadow:0 0 0 4px rgba(44,157,80,.12)}
-.tracking-form-row input::placeholder{color:#87968d;font-weight:400;letter-spacing:0}
-.tracking-form-row .button{flex:0 0 auto;gap:10px;padding:13px 17px;font-size:13px;cursor:pointer}
-.tracking-help{margin-top:12px;color:var(--muted);font-size:11px;line-height:1.6}
-.tracking-result{margin-top:20px}
-.tracking-result.is-loading,.tracking-result.is-error{padding:14px 16px;border-radius:11px;background:#f1f6f2;color:#41594b;font-size:13px}
-.tracking-result.is-error{border:1px solid #efc9c3;background:#fff5f3;color:#8b3027}
-.tracking-order-card{padding:20px;border:1px solid #dce9df;border-radius:14px;background:#f7faf7}
-.tracking-order-eyebrow{color:#16834a;font-size:9px;font-weight:800;letter-spacing:1.25px}
-.tracking-order-card>h3{margin-top:6px;color:#173c29;font:750 21px/1.3 'Manrope',sans-serif}
-.tracking-updated{margin-top:6px;color:#6b7c72;font-size:10px}
-.tracking-quote-card{margin-top:16px;padding:16px;border:1px solid #dce9df;border-radius:12px;background:#fff}
-.tracking-quote-card h4{color:#193e2b;font:700 14px 'Manrope',sans-serif}
-.tracking-quote-card>p{margin-top:7px;color:#596d60;font-size:12px;line-height:1.6}
-.tracking-quote-card .tracking-quote-description{color:#294b36}
-.tracking-quote-amount{display:block;margin-top:8px;color:#0d7440;font:800 23px 'Manrope',sans-serif;letter-spacing:-.5px}
-.tracking-quote-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
-.tracking-quote-actions button{gap:8px;padding:11px 14px;font-size:12px;cursor:pointer}
-.tracking-quote-actions button:disabled{cursor:wait;opacity:.65}
-.tracking-quote-actions .tracking-decline{border:1px solid #d8e3dc;background:#f2f6f3;color:#385345;box-shadow:none}
-.tracking-feedback{margin-top:13px;padding:11px 13px;border-radius:9px;background:#eaf7ed;color:#25613a;font-size:11px;line-height:1.5}
-.help-chat-track-link{align-self:flex-start;padding:4px 0;color:#087342;font-size:11px;font-weight:700;text-decoration:underline}
-@media(max-width:700px){.tracking-form-row{flex-direction:column}.tracking-form-row .button{width:100%;justify-content:space-between}.tracking-order-card{padding:16px}.tracking-quote-card{padding:14px}}
 @media(min-width:701px) and (max-width:1100px){.nav{gap:13px}.nav nav{gap:12px;font-size:12px}}
-html[data-theme="dark"] .tracking-card{border-color:#2e4538;background:#14211b;box-shadow:0 14px 35px rgba(0,0,0,.22)}
-html[data-theme="dark"] .tracking-card label{color:#e4eee8}
-html[data-theme="dark"] .tracking-form-row input{border-color:#3a5144;background:#18251d;color:#e4eee8}
-html[data-theme="dark"] .tracking-form-row input::placeholder{color:#95a89b}
-html[data-theme="dark"] .tracking-form-row input:focus{border-color:#70d68d;box-shadow:0 0 0 4px rgba(72,187,103,.16)}
-html[data-theme="dark"] .tracking-help{color:#aabbb2}
-html[data-theme="dark"] .tracking-result.is-loading{background:#1a2920;color:#c8dace}
-html[data-theme="dark"] .tracking-result.is-error{border-color:#68413c;background:#2a1c19;color:#f1c4bc}
-html[data-theme="dark"] .tracking-order-card{border-color:#35513e;background:#17251c}
-html[data-theme="dark"] .tracking-order-eyebrow{color:#83e9a0}
-html[data-theme="dark"] .tracking-order-card>h3{color:#e3f0e7}
-html[data-theme="dark"] .tracking-updated{color:#aabbb2}
-html[data-theme="dark"] .tracking-quote-card{border-color:#354b3d;background:#111c16}
-html[data-theme="dark"] .tracking-quote-card h4{color:#e3f0e7}
-html[data-theme="dark"] .tracking-quote-card>p{color:#bdcfc3}
-html[data-theme="dark"] .tracking-quote-card .tracking-quote-description{color:#d1e2d6}
-html[data-theme="dark"] .tracking-quote-amount{color:#83e9a0}
-html[data-theme="dark"] .tracking-quote-actions .tracking-decline{border-color:#42574a;background:#1b2921;color:#d2e1d7}
-html[data-theme="dark"] .tracking-feedback{background:#1d3826;color:#b6ebc3}
 html[data-theme="dark"] .help-chat-track-link{color:#83e9a0}
 
 /* Ajustes para celular e tablet: menu sem cortes e campos sem zoom automático. */
 @media(max-width:900px){
   .nav{min-height:0;flex-wrap:wrap;gap:10px 14px;padding-block:13px}
-  .nav nav{order:3;display:grid;flex:0 0 100%;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;width:100%;min-width:0;padding-top:9px;border-top:1px solid #edf1f4;overflow:visible;white-space:normal;font-size:11px}
+  .nav nav{order:3;display:grid;flex:0 0 100%;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;width:100%;min-width:0;padding-top:9px;border-top:1px solid #edf1f4;overflow:visible;white-space:normal;font-size:11px}
   .nav nav a{display:flex;align-items:center;justify-content:center;min-width:0;min-height:40px;padding:5px 3px;border-radius:7px;text-align:center;line-height:1.25;overflow-wrap:anywhere}
   html[data-theme="dark"] .nav nav{border-color:#263a30}
 }
@@ -488,7 +440,7 @@ html[data-theme="dark"] .help-chat-track-link{color:#83e9a0}
   .steps article{padding-top:15px}
   .diagnostic-action{flex-direction:column;align-items:stretch;gap:10px}
   .diagnostic-action .button{width:100%;min-height:48px;justify-content:space-between}
-  .tracking-form-row input,.help-chat-form input{font-size:16px}
+  .help-chat-form input{font-size:16px}
 }
 @media(max-width:390px){
   .nav{gap:8px 10px}

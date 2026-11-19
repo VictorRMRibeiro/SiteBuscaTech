@@ -64,29 +64,12 @@ async function checkDailyLimit(admin: ReturnType<typeof getAdminClient>) {
   return data === true;
 }
 
-async function checkServiceOrderDailyLimit(admin: ReturnType<typeof getAdminClient>) {
-  const { data, error } = await admin.rpc("consume_service_order_daily_limit", { p_limit: 2000 });
-  if (error) throw new Error("Unable to check the service order usage limit.");
-  return data === true;
-}
-
-function publicOrder(order: Record<string, unknown>) {
-  return {
-    serviceStatus: order.service_status,
-    quoteStatus: order.quote_status,
-    quoteDescription: order.quote_description,
-    quoteAmount: order.quote_amount,
-    createdAt: order.created_at,
-    updatedAt: order.updated_at,
-  };
-}
-
 const serviceStatuses = new Set([
   "received", "diagnosis", "quote_pending", "approved",
   "in_service", "ready", "returned", "cancelled",
 ]);
 
-const adminOrderColumns = "id, customer_name, device, symptom, modality, pickup_day, neighborhood, service_status, quote_status, quote_description, quote_amount, created_at, updated_at";
+const adminOrderColumns = "id, customer_name, device, symptom, modality, pickup_day, neighborhood, service_status, quote_description, quote_amount, created_at, updated_at";
 
 function adminOrder(order: Record<string, unknown>) {
   return {
@@ -98,7 +81,6 @@ function adminOrder(order: Record<string, unknown>) {
     pickupDay: order.pickup_day,
     neighborhood: order.neighborhood,
     serviceStatus: order.service_status,
-    quoteStatus: order.quote_status,
     quoteDescription: order.quote_description,
     quoteAmount: order.quote_amount,
     createdAt: order.created_at,
@@ -160,15 +142,6 @@ Deno.serve(async (request) => {
     }
   }
 
-  if (body.action === "order_lookup" || body.action === "quote_response") {
-    try {
-      if (!(await checkServiceOrderDailyLimit(admin))) {
-        return json({ error: "O limite diário de consultas foi atingido. Tente novamente mais tarde ou fale com a equipe." }, 429, origin);
-      }
-    } catch {
-      return json({ error: "O acompanhamento está indisponível no momento." }, 503, origin);
-    }
-  }
 
   if (body.action === "admin_list" || body.action === "admin_update") {
     try {
@@ -200,14 +173,12 @@ Deno.serve(async (request) => {
 
     const { data: current, error: currentError } = await admin
       .from("chatbot_cases")
-      .select(adminOrderColumns)
+      .select("id, quote_status")
       .eq("id", caseId)
       .maybeSingle();
     if (currentError) return json({ error: "Não foi possível abrir este atendimento." }, 503, origin);
     if (!current) return json({ error: "Atendimento não encontrado." }, 404, origin);
 
-    const publishQuote = body.publishQuote === true;
-    const isQuoteDecisionFinal = current.quote_status === "approved" || current.quote_status === "declined";
     const quoteDescription = boundedText(body.quoteDescription, 1000) || null;
     const rawAmount = body.quoteAmount;
     const quoteAmount = rawAmount === null || rawAmount === undefined || rawAmount === ""
@@ -217,19 +188,12 @@ Deno.serve(async (request) => {
     if (quoteAmount !== null && (!Number.isFinite(quoteAmount) || quoteAmount < 0 || quoteAmount > 99999999.99)) {
       return json({ error: "Informe um valor de orçamento válido." }, 400, origin);
     }
-    if (publishQuote && (!quoteDescription || quoteAmount === null || !Number.isFinite(quoteAmount) || quoteAmount < 0 || quoteAmount > 99999999.99)) {
-      return json({ error: "Para enviar o orçamento, informe a descrição e um valor válido." }, 400, origin);
-    }
 
-    const quoteStatus = publishQuote
-      ? "pending"
-      : current.quote_status === "pending" ? "not_ready" : current.quote_status;
     const update = {
       service_status: serviceStatus,
-      quote_status: quoteStatus,
-      quote_description: isQuoteDecisionFinal && !publishQuote ? current.quote_description : quoteDescription,
-      quote_amount: isQuoteDecisionFinal && !publishQuote ? current.quote_amount : quoteAmount,
-      quote_decided_at: publishQuote ? null : current.quote_decided_at,
+      quote_status: current.quote_status === "pending" ? "not_ready" : current.quote_status,
+      quote_description: quoteDescription,
+      quote_amount: quoteAmount,
     };
     const { data: updated, error: updateError } = await admin
       .from("chatbot_cases")
@@ -254,57 +218,16 @@ Deno.serve(async (request) => {
       neighborhood: boundedText(body.neighborhood, 100),
       ai_consent: body.aiConsent === true,
       consent_at: new Date().toISOString(),
-      privacy_notice_version: "2026-11-19",
+      privacy_notice_version: "2026-11-19-whatsapp-updates",
     };
     if (!row.customer_name || !row.device || !row.symptom || !row.modality || !row.neighborhood) {
       return json({ error: "Faltam informações para registrar o atendimento." }, 400, origin);
     }
-    const { data, error } = await admin.from("chatbot_cases").insert(row).select("tracking_token").single();
+    const { error } = await admin.from("chatbot_cases").insert(row);
     if (error) return json({ error: "Não foi possível salvar o resumo agora." }, 503, origin);
-    return json({ saved: true, trackingToken: data.tracking_token }, 200, origin);
+    return json({ saved: true }, 200, origin);
   }
 
-  if (body.action === "order_lookup" || body.action === "quote_response") {
-    const trackingToken = boundedText(body.trackingToken, 64).toLowerCase();
-    if (!/^[a-f0-9]{32}$/.test(trackingToken)) {
-      return json({ error: "Confira o código de acompanhamento e tente novamente." }, 400, origin);
-    }
-
-    const { data: order, error } = await admin
-      .from("chatbot_cases")
-      .select("id, service_status, quote_status, quote_description, quote_amount, created_at, updated_at")
-      .eq("tracking_token", trackingToken)
-      .maybeSingle();
-    if (error) return json({ error: "Não foi possível consultar o atendimento agora." }, 503, origin);
-    if (!order) return json({ error: "Não encontrei um atendimento com esse código. Confira os caracteres e tente de novo." }, 404, origin);
-
-    if (body.action === "order_lookup") {
-      return json({ order: publicOrder(order) }, 200, origin);
-    }
-
-    if (body.decision !== "approve" && body.decision !== "decline") {
-      return json({ error: "Escolha aprovar ou recusar o orçamento." }, 400, origin);
-    }
-    if (order.quote_status !== "pending") {
-      return json({ error: "Este orçamento não está aguardando uma resposta." }, 409, origin);
-    }
-
-    const approved = body.decision === "approve";
-    const { data: updatedOrder, error: updateError } = await admin
-      .from("chatbot_cases")
-      .update({
-        quote_status: approved ? "approved" : "declined",
-        service_status: approved ? "approved" : "cancelled",
-        quote_decided_at: new Date().toISOString(),
-      })
-      .eq("id", order.id)
-      .eq("quote_status", "pending")
-      .select("service_status, quote_status, quote_description, quote_amount, created_at, updated_at")
-      .maybeSingle();
-    if (updateError) return json({ error: "Não foi possível registrar sua resposta agora." }, 503, origin);
-    if (!updatedOrder) return json({ error: "Este orçamento já recebeu uma resposta." }, 409, origin);
-    return json({ order: publicOrder(updatedOrder) }, 200, origin);
-  }
 
   if (body.action !== "chat") return json({ error: "Ação desconhecida." }, 400, origin);
   if (body.consent !== true) return json({ error: "É necessário autorizar o uso da IA." }, 400, origin);

@@ -28,7 +28,7 @@
       <div class="login-content">
         <p class="overline">ÁREA EXCLUSIVA DA EQUIPE</p>
         <h1 id="login-title">Bem-vindo de volta.</h1>
-        <p class="login-intro">Entre para acompanhar os pedidos e manter seus clientes atualizados.</p>
+        <p class="login-intro">Entre para consultar os atendimentos registrados e controlar o andamento interno.</p>
         <form id="login-form" class="login-form">
           <label for="login-email">E-mail autorizado</label>
           <input id="login-email" name="email" type="email" autocomplete="username" required placeholder="voce@exemplo.com">
@@ -46,7 +46,7 @@
         <div>
           <p class="overline">PAINEL DE OPERAÇÃO</p>
           <h1 id="dashboard-title">Pedidos e atendimentos</h1>
-          <p class="dashboard-subtitle">Acompanhe cada etapa e atualize o cliente sem complicação.</p>
+          <p class="dashboard-subtitle">Organize os atendimentos e combine orçamentos e atualizações diretamente pelo WhatsApp.</p>
         </div>
         <div class="dashboard-actions">
           <button class="secondary-button" id="refresh-orders" type="button"><span aria-hidden="true">↻</span> Atualizar</button>
@@ -91,8 +91,8 @@
             <select id="service-status" name="serviceStatus" required>
               <option value="received">Solicitação recebida</option>
               <option value="diagnosis">Em avaliação técnica</option>
-              <option value="quote_pending">Orçamento aguardando resposta</option>
-              <option value="approved">Orçamento aprovado · aguardando início</option>
+              <option value="quote_pending">Orçamento enviado pelo WhatsApp · aguardando resposta</option>
+              <option value="approved">Orçamento aceito pelo cliente via WhatsApp</option>
               <option value="in_service">Serviço em andamento</option>
               <option value="ready">Pronto para combinar devolução</option>
               <option value="returned">Equipamento devolvido</option>
@@ -100,13 +100,11 @@
             </select>
 
             <div class="quote-editor">
-              <div class="quote-editor-heading"><span class="quote-icon" aria-hidden="true">R$</span><div><h3>Orçamento</h3><p>Informe o valor e o que será feito.</p></div></div>
-              <label class="field-label" for="quote-description">Descrição do serviço</label>
+              <div class="quote-editor-heading"><span class="quote-icon" aria-hidden="true">R$</span><div><h3>Orçamento · controle interno</h3><p>Registre o valor e envie os detalhes ao cliente pelo WhatsApp.</p></div></div>
+              <label class="field-label" for="quote-description">Descrição do orçamento</label>
               <textarea id="quote-description" name="quoteDescription" rows="3" maxlength="1000" placeholder="Ex.: limpeza interna e troca da pasta térmica"></textarea>
-              <label class="field-label" for="quote-amount">Valor total</label>
+              <label class="field-label" for="quote-amount">Valor combinado pelo WhatsApp</label>
               <div class="money-input"><span aria-hidden="true">R$</span><input id="quote-amount" name="quoteAmount" type="number" min="0" max="99999999.99" step="0.01" placeholder="0,00" inputmode="decimal"></div>
-              <label class="publish-quote-toggle" for="publish-quote"><input id="publish-quote" name="publishQuote" type="checkbox"><span class="fake-checkbox" aria-hidden="true">✓</span><span><strong>Enviar orçamento para aprovação</strong><small>O cliente poderá aprovar ou recusar com o código de acompanhamento.</small></span></label>
-              <p id="quote-state-note" class="quote-state-note"></p>
             </div>
             <button class="primary-button save-button" id="save-order" type="submit">Salvar alterações <span aria-hidden="true">→</span></button>
             <p id="save-message" class="notice" role="status" aria-live="polite" hidden></p>
@@ -120,6 +118,6 @@
 
   <footer class="admin-footer"><span>BuscaTech · Área da equipe</span><a href="https://victorrmribeiro.github.io/SiteBuscaTech/">Ir para o site público ↗</a></footer>
   <script src="chatbot-config.js"></script>
-  <script src="admin.js?v=20261119-admin-1"></script>
+  <script src="admin.js?v=20261119-admin-2"></script>
 </body>
 </html>

@@ -1,58 +1,44 @@
-# Ativar o assistente com Gemini e salvar atendimentos
+# Supabase do chatbot e dos registros internos
 
-O site está preparado para chamar o Gemini somente pelo servidor do Supabase. A chave Gemini fica nos Secrets do Supabase, nunca no JavaScript público do site. O resumo do atendimento só é registrado quando o cliente escolhe “Sim, salvar o resumo”.
+O site público apresenta os serviços da BuscaTech e oferece o assistente de triagem. A consulta pública por código de rastreio e a aprovação de orçamento pelo site foram retiradas. O andamento, os orçamentos e os agendamentos são combinados diretamente pelo WhatsApp.
 
-## 1. Criar as tabelas e os limites de uso
+## 1. Criar as tabelas
 
-No Supabase, abra **SQL Editor > New query**. Primeiro, copie o conteúdo de `migrations/20261118000100_chatbot_cases.sql`, cole na consulta e clique em **Run**. Depois repita o processo com `migrations/20261119000100_service_order_tracking.sql` para habilitar os códigos privados de acompanhamento, status e orçamento. A tabela de atendimentos fica protegida por RLS e não pode ser lida ou gravada diretamente pelo navegador.
+No Supabase, abra **SQL Editor > New query** e execute primeiro migrations/20261118000100_chatbot_cases.sql. Depois execute migrations/20261119000100_service_order_tracking.sql para os campos de andamento e orçamento usados internamente pela área da equipe. A tabela fica protegida por RLS e não pode ser lida ou gravada diretamente pelo navegador.
+
+Se o banco já recebeu a versão anterior, os campos e os códigos antigos de rastreio permanecem guardados no banco, mas o site e a Edge Function atuais não os mostram nem os consultam. Não execute comandos para apagar esses dados.
 
 ## 2. Publicar a Edge Function
 
-Abra **Edge Functions > Deploy a new function > Via Editor**, crie a função `buscatech-chat` e substitua o código de exemplo pelo conteúdo de `functions/buscatech-chat/index.ts`. Clique em **Deploy function**. Depois, nas configurações da função, desative **Verify JWT**: o endpoint confere a chave publishable no código, e a verificação JWT antiga não aceita corretamente as novas chaves `sb_publishable_...`.
+Abra **Edge Functions > Deploy a new function > Via Editor**, crie a função buscatech-chat e substitua o código de exemplo pelo conteúdo de functions/buscatech-chat/index.ts. Clique em **Deploy function**. Depois, nas configurações da função, desative **Verify JWT**: o endpoint confere a chave publishable no código.
 
-Em **Edge Functions > Secrets**, confirme que existe `GEMINI_API_KEY`. O Supabase fornece `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` ao ambiente da função; eles não devem ser copiados para o site.
+Em **Edge Functions > Secrets**, confirme que existe GEMINI_API_KEY. O Supabase fornece SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY ao ambiente da função; eles não devem ser copiados para o site.
 
 ## 3. Conectar o site
 
-Em **Project Settings > API Keys**, copie o **Project URL** e a **Publishable key** (prefixo `sb_publishable_`). Preencha `supabaseUrl` e `publishableKey` em `chatbot-config.js`. Esses dois valores são destinados ao navegador. Não copie a Gemini API key, `sb_secret_...` ou `service_role` para esse arquivo.
+Em **Project Settings > API Keys**, copie o **Project URL** e a **Publishable key** (prefixo sb_publishable_). Preencha supabaseUrl e publishableKey em chatbot-config.js. Esses dois valores são destinados ao navegador. Não copie a chave Gemini, sb_secret_ ou service_role para esse arquivo.
 
-## 4. Atualizar a Edge Function para acompanhamento
+## 4. Publicar atualizações
 
-Se a função `buscatech-chat` já estiver publicada, abra **Edge Functions > buscatech-chat > Code** (ou **Edit**) e substitua o conteúdo pelo arquivo atualizado `functions/buscatech-chat/index.ts`. Clique em **Deploy updates**. Mantenha **Verify JWT** desativado, como descrito acima.
+Para atualizar o bot, abra **Edge Functions > buscatech-chat > Code/Edit**, cole o conteúdo atual de functions/buscatech-chat/index.ts e clique em **Deploy updates**. Mantenha **Verify JWT** desativado.
 
-## 5. Publicar o site
+As alterações visuais do site são publicadas no GitHub Pages. A função aceita chamadas de https://victorrmribeiro.github.io.
 
-Depois que a função e a configuração estiverem prontas, publique os arquivos atualizados do site no GitHub Pages. A função permite chamadas a partir de `https://victorrmribeiro.github.io`.
+## Área interna da equipe
 
-## Acompanhar um atendimento e responder ao orçamento
+A página admin.html consulta os registros autorizados do chatbot e permite atualizar internamente a etapa do serviço e guardar informações do orçamento. A área não envia o orçamento ao cliente. Combine valores, aprovações e andamento diretamente pelo WhatsApp.
 
-Quando o cliente autoriza salvar o resumo no chatbot, a função gera um código privado aleatório e o mostra ao cliente. Esse código permite consultar o andamento e aprovar ou recusar um orçamento pendente. A página retorna apenas status e dados do orçamento; nome, bairro e relato continuam privados. O cliente deve guardar o código e não compartilhá-lo.
+1. Em **Authentication > Users**, crie e confirme um usuário para o e-mail administrador. Use uma senha forte e guarde-a no gerenciador de senhas.
+2. Em **Edge Functions > Secrets**, crie BUSCATECH_ADMIN_EMAIL com exatamente o mesmo e-mail do usuário autorizado.
+3. Publique a versão atual de functions/buscatech-chat/index.ts. Sem esse deploy e o secret de e-mail, a área da equipe não consegue carregar os atendimentos.
+4. Acesse https://victorrmribeiro.github.io/SiteBuscaTech/admin.html e entre com o e-mail e senha autorizados. Selecione um atendimento para registrar o andamento e as informações internas do orçamento; depois fale com o cliente pelo WhatsApp.
 
-Depois de ativar a área da equipe descrita abaixo, use-a para atualizar pedidos. Como alternativa administrativa, no painel Supabase abra **Table Editor > public.chatbot_cases** e localize o cadastro. Edite a linha e salve:
+O painel lista até 250 atendimentos recentes. Ele não mantém uma linha do tempo das alterações.
 
-- `service_status`: `received` (recebido), `diagnosis` (em avaliação), `quote_pending` (orçamento enviado), `approved` (aprovado), `in_service` (em execução), `ready` (pronto), `returned` (devolvido) ou `cancelled` (encerrado).
-- Para oferecer orçamento, preencha `quote_description` e `quote_amount`, e defina `quote_status` como `pending`. Preencha os três campos juntos para cumprir as validações da tabela.
-- A resposta do cliente altera `quote_status` para `approved` ou `declined`. Em caso de aprovação, `service_status` passa para `approved`; em caso de recusa, passa para `cancelled`. Depois, atualize o status de serviço conforme o trabalho avança.
-- `updated_at` é atualizado automaticamente. Não altere `tracking_token`; ele funciona como credencial privada do cliente.
-
-O painel administrativo oferece a lista e o estado atual dos atendimentos; ele não mantém uma linha do tempo de alterações anteriores.
-
-## Área da equipe para atualizar atendimentos
-
-O site inclui `admin.html`, uma página com login, busca de pedidos e formulário para alterar andamento e orçamento. O navegador nunca recebe a chave `service_role`; cada leitura e alteração de dados passa pela Edge Function e exige uma sessão Supabase autenticada.
-
-1. Em **Authentication > Users**, crie um usuário para o e-mail que será administrador e confirme esse usuário. Use uma senha forte e guarde-a no gerenciador de senhas.
-2. Em **Edge Functions > Secrets**, crie `BUSCATECH_ADMIN_EMAIL` com exatamente o mesmo e-mail do usuário autorizado. Esse endereço define quem pode usar a área da equipe.
-3. Publique a versão atual de `functions/buscatech-chat/index.ts` conforme o passo 4 acima. Sem esse deploy e o secret de e-mail, a tela administrativa não consegue carregar pedidos.
-4. Abra `https://victorrmribeiro.github.io/SiteBuscaTech/admin.html`, entre com o e-mail e senha autorizados, selecione um atendimento e salve as alterações. Para enviar um orçamento, informe a descrição e o valor e marque **Enviar orçamento para aprovação**.
-
-O painel lista até 250 atendimentos mais recentes. As respostas do cliente continuam sendo feitas pelo código privado na página pública de acompanhamento.
-
-## Como o chat usa os dados
+## Como o assistente usa os dados
 
 - O cliente escolhe se quer conversar com a IA; só então o equipamento e as mensagens do problema são enviados ao Gemini.
-- O nome e o bairro não são enviados ao Gemini.
-- O cliente escolhe separadamente se quer salvar o resumo na BuscaTech.
-- O uso da IA tem um limite global de 200 chamadas por dia.
-- As consultas e respostas de orçamento têm um limite global de 2.000 chamadas por dia.
+- Nome e bairro não são enviados ao Gemini.
+- O cliente escolhe separadamente se autoriza salvar o resumo na BuscaTech.
+- O limite de uso da IA é de 200 chamadas por dia.
 - A tabela não guarda transcrição nem telefone; guarda o resumo autorizado com nome, equipamento, problema, modalidade e bairro.
