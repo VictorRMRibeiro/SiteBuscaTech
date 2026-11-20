@@ -126,6 +126,17 @@ footer{border-top:1px solid #e8eeeb}
 .diagnostic-demo .demo-step p strong,.diagnostic .demo-step p strong{font-size:12px}
 .demo-disclaimer{margin:17px 0 20px;color:var(--muted);font-size:12px;line-height:1.7}
 @media(prefers-reduced-motion:reduce){.demo-toggle,.service-demo[open] .demo-content{transition:none;animation:none}}
+.warranty-panel{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:17px;margin-top:23px;padding:23px 25px;border:1px solid #cfe6d6;border-radius:14px;background:#edf8f0}
+.warranty-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#d8f2e0;color:#087c3d;font-size:18px;font-weight:800}
+.warranty-copy .eyebrow{margin:0 0 6px;color:#087342;font-size:9px;letter-spacing:1.3px}
+.warranty-copy h3{font:700 17px/1.35 'Manrope',sans-serif;letter-spacing:-.02em;color:var(--ink)}
+.warranty-copy>p:not(.eyebrow){max-width:760px;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.7}
+.warranty-panel .button{gap:10px;padding:12px 15px;font-size:12px;white-space:nowrap}
+html[data-theme="dark"] .warranty-panel{border-color:#355641;background:#14271c}
+html[data-theme="dark"] .warranty-icon{background:#1b3b27;color:#83e9a0}
+html[data-theme="dark"] .warranty-copy .eyebrow{color:#83e9a0}
+@media(max-width:1000px){.warranty-panel{grid-template-columns:42px minmax(0,1fr)}.warranty-panel .button{grid-column:2;justify-self:start}}
+@media(max-width:700px){.warranty-panel{grid-template-columns:34px minmax(0,1fr);align-items:start;gap:12px;padding:20px 17px}.warranty-icon{width:32px;height:32px;font-size:15px}.warranty-copy h3{font-size:16px}.warranty-copy>p:not(.eyebrow){font-size:12px}.warranty-panel .button{grid-column:1/-1;width:100%;justify-content:space-between;white-space:normal}}
 .payment-panel{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-top:25px;padding:27px 30px;border:1px solid #173a50;border-radius:14px;background:linear-gradient(120deg,#09253a,#103d50);color:white}
 .payment-copy{max-width:600px}
 .payment-eyebrow{display:block;margin-bottom:8px;color:#9feab7;font-size:10px;font-weight:700;letter-spacing:1.4px}
